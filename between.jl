@@ -1,3 +1,6 @@
+include("functions.jl")
+
+
 function try_move(r, side):: Bool #можно ли сделать шаг в заданном направлении?
     if !isborder(r, side)
         move!(r, side)
@@ -6,8 +9,13 @@ function try_move(r, side):: Bool #можно ли сделать шаг в за
     return true
 end
 
-function hey(n)
-    for i in 1:2
-        print(i)
+function stop(r)
+    if ismarker(r)
+        return true
+    return false
     end
+end
+
+function hey(r)
+    return along_if(() -> stop(r), r, Ost, 100)
 end

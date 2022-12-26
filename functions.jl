@@ -4,6 +4,16 @@ function along(r, side):: Nothing #идти до упорa
     end
 end
 
+function along_if(stop_condition::Function, r, side, max_num_steps) #идет в опр. сторону, пока не выполнется условие (или он не врежется в перегородку)
+    num_steps = 0
+    while ((!stop_condition()) || (num_steps != max_num_steps))
+        try_move!(r, side)
+        num_steps += 1
+    end
+    return num_steps
+end
+
+
 function along_mark(r, side)::Nothing #идти до упора + поставить маркеры
     putmarker!(r)
     while !isborder(r, side)
@@ -227,4 +237,30 @@ function num_borders2!(r, side) #количество перегородок Н�
         end
     end
     return num_borders
+end
+
+function shuttle!(stop_condition::Function, robot, side)
+    n = 0 
+    while !stop_condition()
+        n += 1
+        along(r, side, n)
+        side = inverse(side)
+    end
+end
+
+function spriral!(stop_condition::Function, r, side = Nord)
+    n = 1 
+    while !stop_condition()
+        along_if(() -> stop_condition(side), r, side, n)
+        if stop_condition(side)
+            continue
+        end
+        side = left(side)
+        along_if(() -> stop_condition(side), r, side, n)
+        if stop_condition(side)
+            continue
+        end
+        side = left(side)
+        n += 1
+    end
 end
