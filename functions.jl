@@ -1,12 +1,13 @@
+
 function along(r, side):: Nothing #идти до упорa
     while !isborder(r, side)
         try_move!(r, side)
     end
 end
 
-function along_if(stop_condition::Function, r, side, max_num_steps) #идет в опр. сторону, пока не выполнется условие (или он не врежется в перегородку)
+function along_if(stop_condition::Function, r, side, max_num_steps):: Int #идет в опр. сторону, пока не выполнется условие (или он не врежется в перегородку)
     num_steps = 0
-    while ((!stop_condition()) || (num_steps != max_num_steps))
+    while (!stop_condition() && num_steps != max_num_steps)
         try_move!(r, side)
         num_steps += 1
     end
@@ -248,7 +249,7 @@ function shuttle!(stop_condition::Function, robot, side)
     end
 end
 
-function spriral!(stop_condition::Function, r, side = Nord)
+"""function spriral!(stop_condition::Function, r, side = Nord)  # !!! не работает !!!
     n = 1 
     while !stop_condition()
         along_if(() -> stop_condition(side), r, side, n)
@@ -264,3 +265,68 @@ function spriral!(stop_condition::Function, r, side = Nord)
         n += 1
     end
 end
+
+function snake!(stop_condition::Function, r, (move_side, next_row_side)::NTuple{2,HorizonSide=(Nord, Ost)})
+end"""
+# ---- создаем абстракного робота, чтобы можно было передать его функцианал другим роботам --- 
+"
+using HorizonSideRobots
+HSR = HorizonSideRobots
+
+abstract type AbstractRobot end #создаем абстракного робота, чтобы можно было передать его функцианал другим роботам
+
+#get_robot - определяется для каждого робота по отдельности, возвращает ссылку на объект типа робот
+
+HSR.move!(r::AbstractRobot, side) = move!(get_robot(robot), side)
+HSR.isborder(r::AbstractRobot, side) = isborder(get_robot(robot), side)
+HSR.putmarker!(r::AbstractRobot) = putmarker!(get_robot(robot))
+HSR.ismarker(r::AbstractRobot) = ismarker(get_robot(robot))
+HSR.temperature(r::AbstractRobot) = temperature(get_robot(robot))
+"
+#--------- создадим коорд робота ------------
+"
+using HorizonSideRobots
+
+mutable struct Coordinates
+    x::Int
+    y::Int
+end 
+
+function HorizonSideRobots.move!(coord::Coordinates,side::HorizonSide)
+    if side == Nord
+        coord.y+=1
+    elseif side == Sud
+        coord.y-=1
+    elseif side == Ost
+        coord.x+=1
+    elseif side == West
+        coord.x-=1
+    end 
+end 
+
+get_coord(coord::Coordinates)=(coord.x, coord.y)
+
+
+struct CoordRobot
+    robot::Robot
+    coord::Coordinates
+end 
+
+
+
+function HorizonSideRobots.move!(robot::CoordRobot,side)
+    move!(robot.robot,side)
+    move!(robot.coord,side)
+end 
+
+get_coord(robot::CoordRobot) = get_coord(robot.coord)
+
+
+get_robot(robot::CoordRobot) = robot.robot
+
+HorizonSideRobots.isborder(robot::CoordRobot,side)=isborder(robot.robot,side)
+HorizonSideRobots.putmarker!(robot::CoordRobot)=putmarker!(robot.robot)
+HorizonSideRobots.ismarker(robot::CoordRobot)=ismarker(robot.robot)
+HorizonSideRobots.temperature(robot::CoordRobot)=temperature(robot.coord)
+
+#----"
