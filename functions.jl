@@ -159,8 +159,8 @@ function diag_mark(r, side1, side2) #движение ДО УПОРА по ди�
     putmarker!(r)
     it = 0
     while (!isborder(r, side1) && !isborder(r, side2))
-        try_move(r, side1) 
-        try_move(r, side2)
+        try_move!(r, side1) 
+        try_move!(r, side2)
         putmarker!(r)
         it += 1
     end
@@ -169,8 +169,8 @@ end
  
 function diag_it(r, side1, side2, it)
     for i in 1:it
-        try_move(r, side1)
-        try_move(r, side2)
+        try_move!(r, side1)
+        try_move!(r, side2)
     end
 end
     
