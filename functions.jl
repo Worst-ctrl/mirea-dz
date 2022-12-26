@@ -78,8 +78,7 @@ function know_border(r) #узнаем высоту и ширину поля
     back_path = move_to_angle(r)
     h = num_steps_along(r, Nord) + 1
     w = num_steps_along(r, Ost) + 1
-    #move_to_back(r, back_path)
-    move_to_angle(r)
+    move_to_back(r, back_path)
     return h, w
 end
 
